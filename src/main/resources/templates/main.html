@@ -13,12 +13,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     <script src="/js/main.js"></script>
-
 </head>
 
 <body>
     <div id="main">
-        <div th:id="${question.id.get()}" class="question">
+        <div th:id="${question.id.toString()}" class="question">
             <div>
                 <h5><span th:text="${question.authorName}"></span> спрашивает:</h5>
             </div>
