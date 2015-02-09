@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head lang="en">
+    <meta charset="UTF-8" />
+    <title>База вопросов</title>
+
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="/css/main.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script src="/js/main.js"></script>
+
+</head>
+
+<body>
+    <div id="main">
+        <div th:id="${question.id.get()}" class="question">
+            <div>
+                <h5><span th:text="${question.authorName}"></span> спрашивает:</h5>
+            </div>
+            <div th:text="${question.body}">
+
+            </div>
+        </div>
+        <div>
+            <a id="timer-button" class="button" href="#answer">Время!</a>
+        </div>
+        <div class="hidden">
+            <a id="open-button" class="button" href="#">Я знаю!</a>
+        </div>
+        <div class="hidden">
+            <div id="answer">
+                <div><h5>Ответ</h5></div>
+                <div th:text="${question.answer}">
+                </div>
+                <div th:if="${question.hasComment()} == false" th:text="${question.comment}">
+                </div>
+            </div>
+        </div>
+        <div class="hidden">
+            <a id="next-button" class="button" href="/">Еще!</a>
+        </div>
+    </div>
+</body>
+
+</html>
