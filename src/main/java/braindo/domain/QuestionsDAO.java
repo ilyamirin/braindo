@@ -28,8 +28,8 @@ public class QuestionsDAO {
         this.template = template;
     }
 
-    public long count() {
-        return template.count(new Query(), Question.class);
+    public long count(boolean isValid) {
+        return template.count(new Query(Criteria.where("isValid").is(isValid)), Question.class);
     }
 
     public void insert(Question question) {
@@ -38,8 +38,8 @@ public class QuestionsDAO {
     }
 
     public Question getRandom() {
-        int skip = r.nextInt((int) count());
-        Query query = new Query(Criteria.where("isValid").is("true")).limit(-1).skip(skip);
+        int skip = r.nextInt((int) count(true));
+        Query query = new Query(Criteria.where("isValid").is(true)).limit(-1).skip(skip);
         return template.find(query, Question.class).get(0);
     }
 
