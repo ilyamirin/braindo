@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class Crawler implements Runnable {
 
-    private static final Pattern QUESTION_PATTERN = Pattern.compile("(?<=Вопрос [0-9]{1,3}: )[^\\n]+");
+    private static final Pattern QUESTION_PATTERN = Pattern.compile("(?<=Вопрос [0-9]{1,3}: )(.+)(?>Ответ: )", Pattern.DOTALL);
     private static final Pattern ANSWER_PATTERN = Pattern.compile("(?<=Ответ: )[^\\n]+");
     private static final Pattern AUTHOR_PATTERN = Pattern.compile("(?<=Автор: )[^\\n]+");
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?<=Комментарий: )[^\\n]+");
@@ -38,11 +38,11 @@ public class Crawler implements Runnable {
         this.bunchesDAO = bunchesDAO;
     }
 
-    private Question parse(String rawText) {
+    Question parse(String rawText) {
         Question question = new Question();
         Matcher matcher = QUESTION_PATTERN.matcher(rawText);
         if (matcher.find()) {
-            question.setBody(matcher.group());
+            question.setBody(matcher.group(1).trim());
         }
         matcher = ANSWER_PATTERN.matcher(rawText);
         if (matcher.find()) {

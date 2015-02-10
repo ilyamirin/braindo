@@ -1,9 +1,16 @@
 
 $(function() {
     var show_the_answer = function() {
-        $(".hidden").show(); $("#answer").focus(); $( "#open-button" ).hide();
-        var answer_id = $( ".question" ).attr("id");
-//        $.getJSON('/do/not/show/answer/' + answer_id + '/to/user',function(res) {console.log(res);});
+        $("#answer").parent().show();
+        $("#answer").focus();
+        $( "#open-button" ).hide();
+        $( "#exhausted-button" ).hide();
+        $("#next-button").parent().show();
+    };
+
+    var stop_time = function() {
+        $( "#exhausted-button" ).parent().show();
+        $( "#open-button" ).hide();
     };
 
     $(".hidden").hide();
@@ -13,10 +20,15 @@ $(function() {
         event.preventDefault();
     });
 
+    $( "#exhausted-button" ).button().click(function( event ) {
+        show_the_answer();
+        event.preventDefault();
+    });
+
     $( "a#timer-button" ).button().click(function( event ) {
         $( "a#timer-button" ).hide();
         $( "#open-button" ).parent().show();
-        setTimeout(show_the_answer, 60000);
+        setTimeout(stop_time, 60000);
         event.preventDefault();
     });
 

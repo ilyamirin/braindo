@@ -19,7 +19,7 @@
     <div id="main">
         <div th:id="${question.id.toString()}" class="question">
             <div>
-                <h5 th:if="${question.authorName.isEmpty()} == false"><span th:text="${question.authorName}"></span> спрашивает:</h5>
+                <h5 th:if="${question.authorName} == null"><span th:text="${question.authorName}"></span> спрашивает:</h5>
             </div>
             <div th:text="${question.body}">
 
@@ -30,6 +30,9 @@
         </div>
         <div class="hidden">
             <a id="open-button" class="button" href="#">Я знаю!</a>
+        </div>
+        <div class="hidden">
+            <a id="exhausted-button" class="button" href="#">Время вышло!</a>
         </div>
         <div class="hidden">
             <div id="answer">
