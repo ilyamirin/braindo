@@ -7,6 +7,7 @@ import braindo.models.Question;
 import braindo.validators.Validator;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.openqa.selenium.By;
@@ -15,6 +16,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,10 +26,12 @@ import java.util.regex.Pattern;
 @Slf4j
 public class Crawler implements Runnable {
 
-    private static final Pattern QUESTION_PATTERN = Pattern.compile("(?<=Вопрос [0-9]{1,3}: )(.+)(?>Ответ: )", Pattern.DOTALL);
-    private static final Pattern ANSWER_PATTERN = Pattern.compile("(?<=Ответ: )[^\\n]+");
-    private static final Pattern AUTHOR_PATTERN = Pattern.compile("(?<=Автор: )[^\\n]+");
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?<=Комментарий: )[^\\n]+");
+    private static final Pattern QUESTION_PATTERN = Pattern.compile("(?<=Вопрос [0-9]{1,3}:)(.+)(?>Ответ:)", Pattern.DOTALL);
+    private static final Pattern ANSWER_PATTERN_SOURCE = Pattern.compile("(?<=Ответ:)(.+)(?>Источник)", Pattern.DOTALL);
+    private static final Pattern ANSWER_PATTERN_AUTHOR = Pattern.compile("(?<=Ответ:)(.+)(?>Автор)", Pattern.DOTALL);
+    private static final Pattern ANSWER_PATTERN_COMMENT = Pattern.compile("(?<=Ответ:)(.+)(?>Комментарий)", Pattern.DOTALL);
+    private static final Pattern AUTHOR_PATTERN = Pattern.compile("(?<=Автор:)[^\\n]+");
+    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?<=Комментарий:)[^\\n]+");
 
     private final QuestionsDAO questionsDao;
 
@@ -42,21 +46,37 @@ public class Crawler implements Runnable {
         Question question = new Question();
         Matcher matcher = QUESTION_PATTERN.matcher(rawText);
         if (matcher.find()) {
-            question.setBody(matcher.group(1).trim());
+            question.setBody(matcher.group(1).replaceAll("\\n\\.\\.\\.\\n\\n", "").trim());
         }
-        matcher = ANSWER_PATTERN.matcher(rawText);
+        matcher = ANSWER_PATTERN_AUTHOR.matcher(rawText);
         if (matcher.find()) {
-            question.setAnswer(matcher.group());
+            question.setAnswer(matcher.group(1).trim());
+        }
+        matcher = ANSWER_PATTERN_COMMENT.matcher(rawText);
+        if (matcher.find()) {
+            question.setAnswer(matcher.group(1).trim());
+        }
+        matcher = ANSWER_PATTERN_SOURCE.matcher(rawText);
+        if (matcher.find()) {
+            question.setAnswer(matcher.group(1).trim());
         }
         matcher = AUTHOR_PATTERN.matcher(rawText);
         if (matcher.find()) {
-            question.setAuthorName(matcher.group());
+            question.setAuthorName(matcher.group().trim());
         }
         matcher = COMMENT_PATTERN.matcher(rawText);
         if (matcher.find()) {
-            question.setComment(matcher.group());
+            question.setComment(matcher.group().trim());
         }
         return question;
+    }
+
+    Set<String> getImages(List<WebElement> elements) {
+        Set<String> result = Sets.newHashSet();
+        for (WebElement element : elements) {
+            result.add(element.getAttribute("src"));
+        }
+        return result;
     }
 
     private void sleep(int seconds) throws InterruptedException {
@@ -95,10 +115,11 @@ public class Crawler implements Runnable {
                     ObjectId bunchId = bunchesDAO.insert(bunch);
 
                     driver.findElement(By.id("toggleAnswersLink")).click();
-                    sleep(2);
+                    sleep(3);
 
                     for (WebElement questionElement : driver.findElements(By.cssSelector(".question"))) {
                         Question question = parse(questionElement.getText());
+                        question.setImages(getImages(questionElement.findElements(By.tagName("img"))));
                         question.setBunchId(bunchId);
                         question.setValid(Validator.validate(question));
                         questionsDao.insert(question);

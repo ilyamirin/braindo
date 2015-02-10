@@ -1,5 +1,6 @@
 package braindo.models;
 
+import com.google.common.collect.Sets;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by ilyamirin on 09.02.15.
@@ -29,6 +31,7 @@ public class Question {
     private Date addedAt = new Date();
     @Indexed
     private boolean isValid;
+    private Set<String> images = Sets.newHashSet();
 
     @SuppressWarnings("unused")
     public boolean hasComment() {
